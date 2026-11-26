@@ -37,5 +37,6 @@
   {"id": "syncE", "name": "Sync E", "size": 276, "delayMs": 300},
   {"id": "syncF", "name": "Sync F", "size": 276, "delayMs": 300},
   {"id": "syncG", "name": "Sync G", "size": 276, "delayMs": 300},
-  {"id": "syncH", "name": "Sync H", "size": 276, "delayMs": 300}
+  {"id": "syncH", "name": "Sync H", "size": 276, "delayMs": 300},
+  {"id": "slowpast2000", "name": "Slow Past Guard", "size": 2000, "delayMs": 200}
 ]

@@ -20,7 +20,7 @@ const HELP = `
 replay.mjs --server <name> --client <shape> --library <name>[,<name>...] [options]
 
   --server <name>        test-bed server started with server.sh (main, pr, ...)
-  --client <shape>       ${'infuse-direct | infuse-direct-jump | infuse-library | kodi | jellycon | web | findroid'}
+  --client <shape>       ${'infuse-direct | infuse-direct-jump | infuse-library | infuse-library-assumed | kodi | jellycon | web | findroid'}
   --library <names>      library (catalog) names, comma separated; several run at once
   --parent-id <id>       raw ParentId instead of --library (collections, folders)
   --child-of <name>      use the first item of this library as the parent (a collection)
@@ -34,6 +34,9 @@ Shape overrides
   --param k=v            extra query parameter, repeatable (Genres=Action, searchTerm=foo, ...)
   --no-total             send EnableTotalRecordCount=false on every request
   --first-only           send only the first request of the shape
+  --max-pages <n>        infuse-library: stop after this many pages (default 40)
+  --stop fetched         infuse-library: page while items received < latest total
+                         (default: while the next start index < latest total)
   --start <n>            send one request at this start index and stop
   --abort-after <ms>     disconnect the first request after this many ms
 
@@ -98,7 +101,27 @@ const SHAPES = {
       sortOrder: 'Ascending',
     },
   },
+  // From the real Infuse 8.5.11 capture (issue 12): a limit=0 count probe, then
+  // pages of 200 stepping by the 200 asked for, while the latest total is ahead.
   'infuse-library': {
+    clientName: 'Infuse-Library',
+    userAgent: 'Infuse-Library/8.5.11',
+    version: '8.5.11',
+    device: 'iPad',
+    route: 'items',
+    casing: 'camel',
+    page: 200,
+    strategy: 'countProbe',
+    extra: {
+      excludeLocationTypes: 'Virtual',
+      collapseBoxSetItems: 'false',
+      fields:
+        'DateCreated,Etag,Genres,MediaSources,AlternateMediaSources,Overview,ParentId,Path,ProviderIds,SortName,RecursiveItemCount,ChildCount',
+      recursive: 'true',
+    },
+  },
+  // The shape the test bed assumed before the real capture; kept for old results.
+  'infuse-library-assumed': {
     clientName: 'Infuse-Library',
     userAgent: 'Infuse-Library/8.5.11',
     version: '8.5.11',
@@ -354,6 +377,26 @@ async function runShape(session, lib) {
     return rows;
   }
 
+  if (shape.strategy === 'countProbe') {
+    const probe = await send(0, 0, undefined, abortAfter);
+    if (opts['first-only'] || probe.total === undefined) return rows;
+    const maxPages = Number(opts['max-pages'] ?? 40);
+    let total = probe.total;
+    // Steps by the size asked for, not by what came back, and follows the
+    // latest total. Stops on an empty page too (not seen from real Infuse).
+    // --stop fetched: the other reading of the capture, keep going while the
+    // items received are fewer than the latest total.
+    let fetched = 0;
+    const more = (s) => (opts.stop === 'fetched' ? fetched < total : s < total);
+    for (let s = 0, n = 0; more(s) && n < maxPages; s += page, n++) {
+      const row = await send(s, page);
+      if (row.total === undefined || !row.returned) break;
+      total = row.total;
+      fetched += row.returned;
+    }
+    return rows;
+  }
+
   const first = await send(0, page, undefined, abortAfter);
   if (opts['first-only'] || first.total === undefined) return rows;
 
@@ -506,6 +549,7 @@ const result = {
     start: opts.start ?? null,
     abortAfter: opts['abort-after'] ?? null,
     params: opts.param,
+    ...(opts.stop ? { stop: opts.stop } : {}),
   },
   runs: [],
 };

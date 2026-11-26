@@ -15,6 +15,7 @@ Throwaway tooling for [the map](https://github.com/hidalgofdz/AIOStreams/issues/
 | `results/` | The recorded runs behind [the scenario matrix](https://github.com/hidalgofdz/AIOStreams/issues/9) and, in `timing*.jsonl`, [the cost measurements](https://github.com/hidalgofdz/AIOStreams/issues/10). |
 | `scenarios-ratelimit.json` | Catalogs behind a host-wide rate limit (`rateGroup`). Served by a second mock on port 3998. |
 | `hoststats.sh` | Host-wide request count, peak in-flight and peak requests per second of the latest run on a mock. |
+| `library-mode.sh` | Restarts both servers at one cap and replays Library Mode on `main` and the PR; results in `results/library-mode-*.jsonl`. |
 | `expiry.sh` | First page, a wait past the 5-minute catalog cache, then later pages. |
 
 ## Start
@@ -79,7 +80,8 @@ From [How do Infuse and Kodi read the library total?](https://github.com/hidalgo
 | --- | --- | --- | --- |
 | `infuse-direct` | `/Items`, camelCase, `Infuse-Direct/8.5.11` | 50 | reads the first total, then every window up to it, last one shortened |
 | `infuse-direct-jump` | same | 50 | reads the first total, then only the last two windows |
-| `infuse-library` | `/Users/{id}/Items`, PascalCase, `Infuse-Library/8.5.11` | 200 | in order up to the first total (reading it once is an assumption) |
+| `infuse-library` | `/Items`, camelCase, `Infuse-Library/8.5.11` (from the real capture) | 200 | `limit=0` count probe, then pages of 200 stepping by 200 while the next start is below the latest total; `--stop fetched` pages while items received are below it |
+| `infuse-library-assumed` | `/Users/{id}/Items`, PascalCase | 200 | the shape assumed before the real capture; in order up to the first total |
 | `kodi` | Jellyfin for Kodi: client `Kodi`, `Jellyfin-Kodi/1.0.6` | 50 | `Limit=1&EnableTotalRecordCount=true` probe, then pages three at a time with `EnableTotalRecordCount=false` |
 | `jellycon` | client `Kodi JellyCon`, `python-requests` user agent | 50 | rereads the total on every page |
 | `web` | client `Jellyfin Web`, browser user agent | 100 | rereads the total on every page |
