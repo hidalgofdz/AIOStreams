@@ -80,3 +80,17 @@ The frontend uses rsbuild (not Vite/webpack directly) — `pnpm -F frontend dev`
 - Cross-package imports use the workspace name: `from '@aiostreams/core'`.
 - Logger: `createLogger('<scope>')` from `@aiostreams/core` (Pino under the hood); do not `console.log`.
 - Errors that prevent startup should be thrown as `ConfigStartupError` — `server.ts` prints those without a stack trace.
+
+## Agent skills
+
+### Issue tracker
+
+Issues live in GitHub Issues on the fork `hidalgofdz/AIOStreams` (via `gh`), never on upstream `Viren070/AIOStreams`. See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+The five default triage labels are used as-is: `needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`. See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+Single-context: one `GLOSSARY.md` and `docs/adr/` at the repo root. See `docs/agents/domain.md`.
