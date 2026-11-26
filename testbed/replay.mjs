@@ -23,6 +23,7 @@ replay.mjs --server <name> --client <shape> --library <name>[,<name>...] [option
   --client <shape>       ${'infuse-direct | infuse-direct-jump | infuse-library | kodi | jellycon | web | findroid'}
   --library <names>      library (catalog) names, comma separated; several run at once
   --parent-id <id>       raw ParentId instead of --library (collections, folders)
+  --child-of <name>      use the first item of this library as the parent (a collection)
   --mock <url>           mock addon base (default http://localhost:3999)
 
 Shape overrides
@@ -464,8 +465,21 @@ if (opts['parent-id']) {
     });
   }
 }
+if (opts['child-of']) {
+  const v = allViews.find((x) => x.Name.toLowerCase() === opts['child-of'].toLowerCase());
+  if (!v) { console.error(`no library "${opts['child-of']}"`); process.exit(1); }
+  const res = await fetch(
+    `${BASE}/jellyfin/Items?userId=${session.userId}&parentId=${v.Id}&startIndex=0&limit=5`,
+    { headers: headers(session.token) }
+  );
+  const first = (await res.json()).Items?.[0];
+  if (!first) { console.error(`library "${opts['child-of']}" is empty`); process.exit(1); }
+  console.error(`parent: ${first.Name} (${first.Type}) ${first.Id}`);
+  libs.length = 0;
+  libs.push({ id: first.Id, name: `${v.Name} > ${first.Name}`, types: opts.types === 'none' ? undefined : (opts.types ?? 'Movie') });
+}
 if (!libs.length) {
-  console.error('give --library or --parent-id');
+  console.error('give --library, --parent-id or --child-of');
   process.exit(1);
 }
 

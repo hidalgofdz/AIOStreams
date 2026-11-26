@@ -11,6 +11,8 @@ Throwaway tooling for [the map](https://github.com/hidalgofdz/AIOStreams/issues/
 | `server.sh` | Starts or stops one AIOStreams server from any checkout, with its own database. |
 | `replay.mjs` | Sends client-shaped `/Items` requests and records totals, items, timing and upstream requests. |
 | `compare.mjs` | Diffs two `replay.mjs --out` files (main against the PR). |
+| `matrix.sh` | One scenario-matrix row: a cold `--exhaust` run, a one-line pass or fail summary, full result appended to `.state/matrix.jsonl`. |
+| `results/` | The recorded runs behind [the scenario matrix](https://github.com/hidalgofdz/AIOStreams/issues/9). |
 
 ## Start
 
@@ -83,8 +85,9 @@ From [How do Infuse and Kodi read the library total?](https://github.com/hidalgo
 Any shape can be bent: `--client-name`, `--user-agent` (`none` sends no explicit
 one), `--page`, `--types`, `--param k=v` (repeatable, for example
 `--param Genres=Action` or `--param searchTerm=00012`), `--no-total`,
-`--first-only`, `--start <n>`, `--abort-after <ms>`, `--parent-id <id>` for
-collections. `node testbed/replay.mjs --help` lists everything.
+`--first-only`, `--start <n>`, `--abort-after <ms>`, `--parent-id <id>` or
+`--child-of "<library>"` (the first item of that library, for the collection
+scenarios). `node testbed/replay.mjs --help` lists everything.
 
 ## What a run records
 

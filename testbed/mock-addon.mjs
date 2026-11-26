@@ -48,6 +48,7 @@ const SCENARIOS_FILE = arg('scenarios', path.join(here, 'scenarios.json'));
  *   maxConcurrent  answer 429 when more than this many catalog requests are in flight
  *   maxPerSecond   answer 429 when more than this many catalog requests arrive in one second
  *   failEvery   every Nth catalog request answers 500; 0 = never
+ *   collection  every entry is a collection with this block (sources name catalogs of this addon)
  */
 const scenarios = JSON.parse(fs.readFileSync(SCENARIOS_FILE, 'utf8')).map(
   (s) => ({
@@ -65,6 +66,7 @@ const scenarios = JSON.parse(fs.readFileSync(SCENARIOS_FILE, 'utf8')).map(
     maxConcurrent: 0,
     maxPerSecond: 0,
     failEvery: 0,
+    collection: null,
     ...s,
   })
 );
@@ -82,6 +84,7 @@ function entry(s, i) {
     poster: `http://localhost:${PORT}/poster.png`,
     genres: s.genres.length ? [s.genres[i % s.genres.length]] : undefined,
     releaseInfo: String(1950 + (i % 75)),
+    collection: s.collection ?? undefined,
   };
 }
 
