@@ -78,6 +78,7 @@ import {
   userViews,
   viewItems,
 } from './items.js';
+import { readsTotalOnce } from './clients.js';
 import { metahubPoster } from './images.js';
 import { getMeta } from './resolve.js';
 
@@ -86,8 +87,11 @@ const router: Router = Router({ mergeParams: true });
 const withoutRequiredGenre = (views: ViewEntry[]) =>
   views.filter((v) => !requiresGenre(v.catalog));
 
-function isKodi(ctx: JellyfinRequestContext): boolean {
-  return /kodi/i.test(ctx.client.name);
+/** Whether the client needs the exact total on the first page. */
+function needsExactTotal(req: Request, ctx: JellyfinRequestContext): boolean {
+  return (
+    wantsTotal(req) && readsTotalOnce(ctx.client.name, req.get('user-agent'))
+  );
 }
 
 function typeFilter(req: Request): Set<string> | null {
@@ -611,7 +615,7 @@ async function handleItems(
         {
           startIndex,
           limit,
-          exactTotal: isKodi(ctx) && wantsTotal(req),
+          exactTotal: needsExactTotal(req, ctx),
           cursorKey: `${ctx.scope()}|${filterShape(req, types)}|${canonicalDescriptor(pd)}`,
           select: pageFilter(req, ctx, types, { parentId }),
           kinds: searchKindsFor(types),
@@ -802,7 +806,7 @@ async function handleItems(
       limit,
       genre: genreFromId,
       search: searchTerm,
-      exactTotal: isKodi(ctx) && wantsTotal(req),
+      exactTotal: needsExactTotal(req, ctx),
       cursorKey: `${ctx.scope()}|${filterShape(req, types)}`,
       select: pageFilter(req, ctx, types, { parentId, catalog }),
       signal: untilClosed(res),
