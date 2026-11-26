@@ -47,6 +47,8 @@ const SCENARIOS_FILE = arg('scenarios', path.join(here, 'scenarios.json'));
  *   search      true = the catalog supports the `search` extra (matches on name)
  *   maxConcurrent  answer 429 when more than this many catalog requests are in flight
  *   maxPerSecond   answer 429 when more than this many catalog requests arrive in one second
+ *   rateGroup   scenarios sharing a rateGroup share one set of rate-limit counters
+ *               (a host-wide limit); maxConcurrent / maxPerSecond then count the group
  *   failEvery   every Nth catalog request answers 500; 0 = never
  *   collection  every entry is a collection with this block (sources name catalogs of this addon)
  */
@@ -268,7 +270,11 @@ const server = http.createServer(async (req, res) => {
     const now = Date.now();
     const concurrency = (inFlight.get(key) ?? 0) + 1;
     inFlight.set(key, concurrency);
-    const secKey = `${key}|${Math.floor(now / 1000)}`;
+    // Rate limits count the scenario's rateGroup when it has one (host-wide limit).
+    const gKey = s.rateGroup ? `${ns}|group:${s.rateGroup}` : null;
+    const gConcurrency = gKey ? (inFlight.get(gKey) ?? 0) + 1 : concurrency;
+    if (gKey) inFlight.set(gKey, gConcurrency);
+    const secKey = `${gKey ?? key}|${Math.floor(now / 1000)}`;
     const thisSecond = (perSecond.get(secKey) ?? 0) + 1;
     perSecond.set(secKey, thisSecond);
     const ordinal = (seq.get(key) ?? 0) + 1;
@@ -285,6 +291,7 @@ const server = http.createServer(async (req, res) => {
     log.push(row);
     const finish = (status, body, returned = 0) => {
       inFlight.set(key, (inFlight.get(key) ?? 1) - 1);
+      if (gKey) inFlight.set(gKey, (inFlight.get(gKey) ?? 1) - 1);
       row.end = Date.now();
       row.status = status;
       row.returned = returned;
@@ -292,7 +299,7 @@ const server = http.createServer(async (req, res) => {
     };
 
     if (
-      (s.maxConcurrent && concurrency > s.maxConcurrent) ||
+      (s.maxConcurrent && gConcurrency > s.maxConcurrent) ||
       (s.maxPerSecond && thisSecond > s.maxPerSecond)
     )
       return finish(429, { err: 'rate limited' });

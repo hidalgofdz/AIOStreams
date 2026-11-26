@@ -12,7 +12,10 @@ Throwaway tooling for [the map](https://github.com/hidalgofdz/AIOStreams/issues/
 | `replay.mjs` | Sends client-shaped `/Items` requests and records totals, items, timing and upstream requests. |
 | `compare.mjs` | Diffs two `replay.mjs --out` files (main against the PR). |
 | `matrix.sh` | One scenario-matrix row: a cold `--exhaust` run, a one-line pass or fail summary, full result appended to `.state/matrix.jsonl`. |
-| `results/` | The recorded runs behind [the scenario matrix](https://github.com/hidalgofdz/AIOStreams/issues/9). |
+| `results/` | The recorded runs behind [the scenario matrix](https://github.com/hidalgofdz/AIOStreams/issues/9) and, in `timing*.jsonl`, [the cost measurements](https://github.com/hidalgofdz/AIOStreams/issues/10). |
+| `scenarios-ratelimit.json` | Catalogs behind a host-wide rate limit (`rateGroup`). Served by a second mock on port 3998. |
+| `hoststats.sh` | Host-wide request count, peak in-flight and peak requests per second of the latest run on a mock. |
+| `expiry.sh` | First page, a wait past the 5-minute catalog cache, then later pages. |
 
 ## Start
 
@@ -121,6 +124,14 @@ total and ordered item ids plus the upstream request count, never timing, and ex
 1 on any difference. Item ids are the same on both servers.
 
 ## Things that will mislead you
+
+- **Keep rate-limited catalogs off the main mock.** One 429 puts the whole origin in
+  a 5 s cooldown inside AIOStreams (`utils/http/cooldown.ts`): every request to it is
+  refused, manifests included, and walks in progress read that as the end of the
+  catalog. Sign-in probes every library, so a single limited catalog poisons every
+  run. Run them on their own origin:
+  `node testbed/mock-addon.mjs --port 3998 --scenarios testbed/scenarios-ratelimit.json`
+  and pass `--mock http://localhost:3998` to `replay.mjs`.
 
 - **The catalog cache cannot be turned off from the environment.**
   `CATALOG_CACHE_TTL=-1`, `0` and `*:-1` were all tried: a repeat request still made

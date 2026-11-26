@@ -1,0 +1,9 @@
+run 1: wall 6070 ms, upstream requests 32
+  Slow Above Cap: firstTotal=250 totalsSeen=[250] requests=1 items=50 unique=50 firstMs=6069 laterMsMax=null status=[200] upstream=13 peak=2 429=0
+    start=0 limit=50 -> 200 returned=50 total=250 6069 ms
+run 1: wall 5084 ms, upstream requests 13
+  Slow Above Cap: firstTotal=250 totalsSeen=[250] requests=1 items=50 unique=50 firstMs=5082 laterMsMax=null status=[200] upstream=13 peak=4 429=0
+    start=50 limit=50 -> 200 returned=50 total=250 5082 ms
+run 1: wall 5 ms, upstream requests 0
+  Slow Above Cap: firstTotal=250 totalsSeen=[250] requests=1 items=50 unique=50 firstMs=5 laterMsMax=null status=[200] upstream=0 peak=- 429=0
+    start=200 limit=50 -> 200 returned=50 total=250 5 ms

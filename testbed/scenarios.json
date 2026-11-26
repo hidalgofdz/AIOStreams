@@ -24,5 +24,18 @@
   {"id": "collturn", "name": "Collections In Turn", "size": 3, "collection": {"sources": [{"type": "movie", "catalogId": "s276"}, {"type": "movie", "catalogId": "s200"}]}},
   {"id": "collmix", "name": "Collections Interleaved", "size": 3, "collection": {"merge": "interleaved", "sources": [{"type": "movie", "catalogId": "s276"}, {"type": "movie", "catalogId": "s200"}]}},
   {"id": "collsmall", "name": "Collections Small", "size": 3, "collection": {"sources": [{"type": "movie", "catalogId": "s50"}, {"type": "movie", "catalogId": "s249"}]}},
-  {"id": "collbig", "name": "Collections Big", "size": 3, "collection": {"sources": [{"type": "movie", "catalogId": "s2000"}, {"type": "movie", "catalogId": "s200"}]}}
+  {"id": "collbig", "name": "Collections Big", "size": 3, "collection": {"sources": [{"type": "movie", "catalogId": "s2000"}, {"type": "movie", "catalogId": "s200"}]}},
+  {"id": "slow50", "name": "Slow Fifty", "size": 50, "delayMs": 500},
+  {"id": "slow276", "name": "Slow Above Cap", "size": 276, "delayMs": 500},
+  {"id": "mid276", "name": "Mid Above Cap", "size": 276, "delayMs": 150},
+  {"id": "vslow276", "name": "Very Slow Above Cap", "size": 276, "delayMs": 2000},
+  {"id": "slowbig1000", "name": "Slow Big Pages", "size": 1000, "pageSize": 100, "delayMs": 500},
+  {"id": "syncA", "name": "Sync A", "size": 276, "delayMs": 300},
+  {"id": "syncB", "name": "Sync B", "size": 276, "delayMs": 300},
+  {"id": "syncC", "name": "Sync C", "size": 276, "delayMs": 300},
+  {"id": "syncD", "name": "Sync D", "size": 276, "delayMs": 300},
+  {"id": "syncE", "name": "Sync E", "size": 276, "delayMs": 300},
+  {"id": "syncF", "name": "Sync F", "size": 276, "delayMs": 300},
+  {"id": "syncG", "name": "Sync G", "size": 276, "delayMs": 300},
+  {"id": "syncH", "name": "Sync H", "size": 276, "delayMs": 300}
 ]
