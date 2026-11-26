@@ -1,0 +1,19 @@
+[
+  { "id": "s50", "name": "Fifty", "size": 50 },
+  { "id": "s200", "name": "Two Hundred", "size": 200 },
+  { "id": "s249", "name": "Below Cap", "size": 249 },
+  { "id": "s250", "name": "At Cap", "size": 250 },
+  { "id": "s276", "name": "Above Cap", "size": 276 },
+  { "id": "s1000", "name": "Thousand", "size": 1000 },
+  { "id": "s2000", "name": "Past Guard", "size": 2000 },
+  { "id": "slow200", "name": "Slow Two Hundred", "size": 200, "delayMs": 500 },
+  { "id": "slow1000", "name": "Slow Thousand", "size": 1000, "delayMs": 500 },
+  { "id": "mixed276", "name": "Mixed Types", "size": 276, "mixEvery": 5 },
+  { "id": "var300", "name": "Variable Pages", "size": 300, "pageSize": [20, 13, 20, 7] },
+  { "id": "dup300", "name": "Duplicates", "size": 300, "dupEvery": 4 },
+  { "id": "noskip", "name": "No Skip", "size": 300, "skip": false },
+  { "id": "genre300", "name": "Genres", "size": 300, "genres": ["Action", "Drama", "Comedy"] },
+  { "id": "search300", "name": "Searchable", "size": 300, "search": true },
+  { "id": "series276", "name": "Series", "type": "series", "size": 276 },
+  { "id": "limited1000", "name": "Rate Limited", "size": 1000, "delayMs": 100, "maxConcurrent": 2 }
+]
