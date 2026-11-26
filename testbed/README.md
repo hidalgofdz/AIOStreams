@@ -147,3 +147,21 @@ total and ordered item ids plus the upstream request count, never timing, and ex
 - `kodi` reports one item more than the library holds: the probe's single item is
   counted.
 - Jellyfin clamps `Limit` between 100 and 500 depending on the cap (`browseLimit`).
+
+## Real client run
+
+For [Confirm with real Infuse against real catalogs](https://github.com/hidalgofdz/AIOStreams/issues/12).
+`real.sh` starts a checkout on a fresh copy of a real deployment's database behind
+`capture-proxy.mjs`, which logs one line per request: client name and version from
+the authorization header (never the token), paging parameters, status, time to
+first byte, total time, item count, `TotalRecordCount`, and `aborted: true` when
+the client hung up first.
+
+```bash
+testbed/real.sh start $REPO /path/to/deployment JELLYFIN_MAX_CATALOG_ITEMS=500
+testbed/real.sh mark "round 2: Library Mode"
+testbed/real.sh stop
+```
+
+Point Infuse at the printed address (proxy on 3111, server on 3112). The capture is
+`testbed/.state/real-capture.jsonl`; it holds user ids and stays git-ignored.
